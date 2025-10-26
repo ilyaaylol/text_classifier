@@ -46,7 +46,7 @@ results.to_csv('predictions_trial.csv', index=False)
 
 
 #отображение нграм
-feature_names = vectorizer.get_feature_names_out()
+"""feature_names = vectorizer.get_feature_names_out()
 mean_tf = np.asarray(X_train.mean(axis=0)).ravel()
 print(mean_tf.shape)
 idf_weights = pd.DataFrame({
@@ -55,4 +55,4 @@ idf_weights = pd.DataFrame({
     'mean_tf': mean_tf
 })
 idf_sorted = idf_weights.sort_values(by='mean_tf', ascending=False)
-print(idf_sorted.head())
+print(idf_sorted.head())"""
