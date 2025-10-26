@@ -1,0 +1,58 @@
+import pandas as pd
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import Pipeline
+import numpy as np
+
+#Извлечение данных
+train_data = pd.read_csv('train_trial.csv', encoding='utf-8')
+test_data = pd.read_csv('test_trial.csv', encoding='utf-8')
+
+#Предобработка
+def preprocess(text):
+    text = text.lower()
+    text = text.strip()
+    text = ' '.join(text.split())
+    return text
+train_data['text'] = train_data['text'].apply(preprocess)
+test_data['text'] = test_data['text'].apply(preprocess)
+X_train = train_data['text']
+X_test = test_data['text']
+y_train = train_data['language']
+
+#Векторизация
+vectorizer = TfidfVectorizer(
+    analyzer='char',
+    ngram_range=(1,  3),
+    max_features=1000
+)
+
+#Model
+pipe = Pipeline([
+    ('tfidf', TfidfVectorizer(analyzer='char', ngram_range=(1, 3), max_features=1000)),
+    ('nb', MultinomialNB())
+])
+
+pipe.fit(X_train, y_train)
+
+#predictions
+predictions = pipe.predict(X_test)
+results = pd.DataFrame({
+    'id': test_data['text'],
+    'lenguage': predictions
+})
+
+results.to_csv('predictions_trial.csv', index=False)
+
+
+#отображение нграм
+feature_names = vectorizer.get_feature_names_out()
+mean_tf = np.asarray(X_train.mean(axis=0)).ravel()
+print(mean_tf.shape)
+idf_weights = pd.DataFrame({
+    'ngram': feature_names,
+    'idf': vectorizer.idf_,
+    'mean_tf': mean_tf
+})
+idf_sorted = idf_weights.sort_values(by='mean_tf', ascending=False)
+print(idf_sorted.head())
